@@ -1,0 +1,22 @@
+extends layout
+
+block content
+    - function Hostname(url) { return /^https?\:\/\/([^\/:?#]+)(?:[\/:?#]|$)/i.exec(url)[1]; }
+    - function tsSorted(obj) { return Object.keys(obj).sort((a,b) => b-a); }
+    div
+        each urlObj in data.urls
+            - var url = urlObj.url
+            h2= url
+            p Last Scrape: #{new Date(parseInt(tsSorted(scrapeHist[url])[0])).toLocaleString()}
+            table.condensed
+                thead
+                    tr
+                        th Timestamp
+                        th Changed?
+                each scrapeObj in tsHist[url]
+                    tr
+                        td= new Date(scrapeObj.ts).toLocaleString()
+                        td= scrapeObj.newScrape
+                    //- if scrapeObj.newScrape
+                    //-     td(colspan= 2)
+                    //-         img(src= "/scrape_data/" + Hostname(url) + "/" + scrapeObj.ts + "/diff.png")

@@ -1,0 +1,61 @@
+/* Coolors Exported Palette - coolors.co/247ba0-70c1b3-b2dbbf-f3ffbd-ff1654 */
+$color1: rgba(36, 123, 160, 1);
+$color2: rgba(112, 193, 179, 1);
+$color3: rgba(178, 219, 191, 1);
+$color4: rgba(243, 255, 189, 1);
+$color5: rgba(255, 22, 84, 1);
+
+body {
+    margin: 0 auto;
+    width: 960px;
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+a {
+    color: #00B7FF;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+table td,
+table th {
+    padding: 10px 10px 9px;
+    font-size: 13px;
+    line-height: 18px;
+    text-align: left;
+}
+table td {
+    vertical-align: top;
+    border-top: solid 1px #ddd;
+}
+table th {
+    background-color: $color2;
+    padding-top: 9px;
+    font-weight: bold;
+    vertical-align: middle;
+}
+table.condensed td,
+table.condensed th {
+    padding: 5px 5px 4px;
+}
+table.bordered {
+    border-collapse: separate;
+    border: solid 1px #ddd;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+table.bordered td + td,
+table.bordered th + td,
+table.bordered th + th {
+    border-left: solid 1px #ddd;
+}
+.zebra-striped tbody tr:nth-child(odd) td,
+.zebra-striped tbody tr:nth-child(odd) th {
+    background: #f5f5f5;
+}
+
+img {
+    max-width: 100%;
+}
