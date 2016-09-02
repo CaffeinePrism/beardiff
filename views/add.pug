@@ -1,9 +1,6 @@
 extends layout
 
 block content
-    h1= title
-        p Welcome to #{title}
-
     form(method="post")
         p
             label(for="url") URL:
@@ -16,5 +13,3 @@ block content
             input(type="text", name="data")
         p.buttons
             input(type="submit", value="Save")
-
-    

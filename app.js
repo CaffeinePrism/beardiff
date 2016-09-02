@@ -17,25 +17,13 @@ var db = mongoose.connection;
 
 const Event = require('./models/Event.js');
 const Notification = require('./models/Notification.js');
+const Url = require('./models/Url.js');
 
 const spawn = require('child_process').spawn;
 
 var routes = require('./routes/index');
 
 var app = express();
-
-app.locals.data = {
-    addedUrls: new Set(),
-    urls: [{
-        url: "http://google.com",
-        operation: "GET",
-        data: ""
-    }, {
-        url: "http://reddit.com/new",
-        operation: "GET",
-        data: ""
-    }]
-};
 
 app.locals.emitter = new events.EventEmitter();
 
@@ -100,6 +88,7 @@ db.once('open', function() {
     app.locals.db = db;
     app.listen(app.get('port'), () => {
         console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
+
         console.log('Starting scrape loop');
         scrapeLoop().then(function() {
             console.log('Scrape loop finished');
@@ -131,10 +120,18 @@ function getLastScrapeTs(url) {
     });
 }
 
+function getUrls() {
+    return new Promise(function(resolve, reject) {
+        Url.find({}, function(err, resp) {
+            resolve(resp);
+        });
+    });
+}
+
 const scrapeLoop = bluebird.coroutine(function* scrapeLoop() {
     const comparator = (a, b) => b - a; // highest first
     let promises = []
-    for (let urlObj of app.locals.data.urls) {
+    for (let urlObj of yield getUrls()) {
         let params;
         let url = urlObj.url;
         let exists = yield checkUrlInit(url);

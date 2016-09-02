@@ -3,20 +3,18 @@ var router = express.Router();
 
 const Event = require('../models/Event.js');
 const Notification = require('../models/Notification.js');
+const Url = require('../models/Url.js');
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
-    res.render('index', {
-        title: 'Express'
-    });
-});
 
 router.get('/data', function(req, res, next) {
-    Event.find({}, function(err, events) {
-        res.write(JSON.stringify(events) + '\n\n');
-    });
-    Notification.find({}, function(err, events) {
-        res.write(JSON.stringify(events));
+    let urls = Url.find({}).exec();
+    let events = Event.find({}).exec();
+    let notis = Notification.find({}).exec();
+
+    Promise.all([urls, events, notis]).then(ret => {
+        ret.map(function(d) {
+            res.write(JSON.stringify(d) + '\n\n');
+        });
         res.end();
     });
 });
@@ -29,7 +27,12 @@ router.get('/status', function(req, res, next) {
     });
 });
 
-router.post('/', function(req, res, next) {
+/* GET home page. */
+router.get('/add', function(req, res, next) {
+    res.render('add');
+});
+
+router.post('/add', function(req, res, next) {
     console.log(req.body);
 
     var url = req.body.url;
@@ -38,16 +41,16 @@ router.post('/', function(req, res, next) {
 
     console.log(url, operation, data);
     // res.status(200).send("POST: " + JSON.stringify(req.body));
-    if (!req.app.locals.data.addedUrls.has(url)) {
-        req.app.locals.data.urls.push({
-            url: url,
-            operation: operation,
-            data: data
-        });
-        req.app.locals.data.addedUrls.add(url);
-        console.log(req.app.locals.data.addedUrls);
-    }
-    res.send(req.app.locals.data.urls);
+    let query = {
+        url: url,
+        operation: operation,
+        data: data
+    };
+    Url.findOneAndUpdate(query, {url: url}, {upsert:true, new:true}, function(err, doc){
+        if (err) return res.send(500, { error: err });
+        console.log("ok");
+        res.send(doc);
+    });
 });
 
 module.exports = router;
