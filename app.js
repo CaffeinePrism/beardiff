@@ -121,11 +121,7 @@ function getLastScrapeTs(url) {
 }
 
 function getUrls() {
-    return new Promise(function(resolve, reject) {
-        Url.find({}, function(err, resp) {
-            resolve(resp);
-        });
-    });
+    return Url.find({}).exec();
 }
 
 const scrapeLoop = bluebird.coroutine(function* scrapeLoop() {

@@ -48,7 +48,6 @@ router.post('/add', function(req, res, next) {
     };
     Url.findOneAndUpdate(query, {url: url}, {upsert:true, new:true}, function(err, doc){
         if (err) return res.send(500, { error: err });
-        console.log("ok");
         res.send(doc);
     });
 });
