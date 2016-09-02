@@ -1,5 +1,6 @@
 "use strict";
 
+var bluebird = require('bluebird');
 var express = require('express');
 var path = require('path');
 var logger = require('morgan');
@@ -96,10 +97,13 @@ app.use(function(err, req, res, next) {
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
+    app.locals.db = db;
     app.listen(app.get('port'), () => {
         console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
         console.log('Starting scrape loop');
-        runGenerator(scrapeLoop);
+        scrapeLoop().then(function() {
+            console.log('Scrape loop finished');
+        });
     });
 });
 
@@ -154,9 +158,9 @@ function runGenerator(g) {
     })();
 }
 
-function* scrapeLoop() {
+const scrapeLoop = bluebird.coroutine(function* scrapeLoop() {
     const comparator = (a, b) => b - a; // highest first
-    let count = app.locals.data.urls.length;
+    let promises = []
     for (let urlObj of app.locals.data.urls) {
         let params;
         let url = urlObj.url;
@@ -170,38 +174,38 @@ function* scrapeLoop() {
             params = ['phantom.js', 'diff', lastTs, url];
         }
         console.log("Scrape:", params, urlObj);
-        let phantom = spawn('phantomjs', params);
-        phantom.stdout.on('data', (data) => {
-            console.log(`stdout [${url}]: ${data}`);
-            let result = JSON.parse(data);
-            if (result.newScrape) {
-                new Notification({
-                    ts: result.ts,
-                    url: result.url
-                }).save(function(err, obj) {
-                    if (err) console.error(err);
-                });
-            }
-            new Event(result).save(function(err, obj) {
-                if (err) console.error(err);
-                else {
-                    console.log('saved', url);
+        promises.push(new Promise(function(resolve, reject) {
+            let phantom = spawn('phantomjs', params);
+            phantom.stdout.on('data', (data) => {
+                console.log(`stdout [${url}]: ${data}`);
+                let result = JSON.parse(data);
+                if (result.newScrape) {
+                    new Notification({
+                        ts: result.ts,
+                        url: result.url
+                    }).save(function(err, obj) {
+                        if (err) console.error(err);
+                    });
                 }
+                new Event(result).save(function(err, obj) {
+                    if (err) console.error(err);
+                    else {
+                        console.log('saved', url);
+                    }
+                });
             });
-        });
 
-        phantom.stderr.on('data', (data) => {
-            console.log(`stderr [${url}]: ${data}`);
-        });
+            phantom.stderr.on('data', (data) => {
+                console.log(`stderr [${url}]: ${data}`);
+            });
 
-        phantom.on('close', (code) => {
-            console.log(`[${url}]: child process exited with code ${code}`);
-            if (--count == 0) {
-                setTimeout(function() {runGenerator(scrapeLoop);}, 6000);
-                return 1;
-            }
-        });
+            phantom.on('exit', (code) => {
+                console.log(`[${url}]: child process exited with code ${code}`);
+                resolve();
+            });
+        }));
     }
-}
+    return Promise.all(promises);
+});
 
 module.exports = app;
