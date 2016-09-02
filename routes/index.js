@@ -1,5 +1,5 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
 const Event = require('../models/Event.js');
 const Notification = require('../models/Notification.js');
@@ -35,9 +35,9 @@ router.get('/add', function(req, res, next) {
 router.post('/add', function(req, res, next) {
     console.log(req.body);
 
-    var url = req.body.url;
-    var operation = req.body.method || 'GET';
-    var data = req.body.data || '';
+    let url = req.body.url;
+    let operation = req.body.method || 'GET';
+    let data = req.body.data || '';
 
     console.log(url, operation, data);
     // res.status(200).send("POST: " + JSON.stringify(req.body));

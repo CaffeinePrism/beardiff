@@ -1,19 +1,19 @@
 "use strict";
 
-var bluebird = require('bluebird');
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var sass = require('node-sass-middleware');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var events = require('events');
+const bluebird = require('bluebird');
+const express = require('express');
+const path = require('path');
+const logger = require('morgan');
+const sass = require('node-sass-middleware');
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
+const events = require('events');
 
 const mongoose = require('mongoose');
 // Use native promises
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/beardiff');
-var db = mongoose.connection;
+const db = mongoose.connection;
 
 const Event = require('./models/Event.js');
 const Notification = require('./models/Notification.js');
@@ -21,9 +21,9 @@ const Url = require('./models/Url.js');
 
 const spawn = require('child_process').spawn;
 
-var routes = require('./routes/index');
+const routes = require('./routes/index');
 
-var app = express();
+const app = express();
 
 app.locals.emitter = new events.EventEmitter();
 
@@ -53,7 +53,7 @@ app.use('/', routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
