@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+const Event = require('../models/Event.js');
+const Notification = require('../models/Notification.js');
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
     res.render('index', {
@@ -9,7 +12,13 @@ router.get('/', function(req, res, next) {
 });
 
 router.get('/data', function(req, res, next) {
-    res.send(req.app.locals);
+    Event.find({}, function(err, events) {
+        res.write(JSON.stringify(events) + '\n\n');
+    });
+    Notification.find({}, function(err, events) {
+        res.write(JSON.stringify(events));
+        res.end();
+    });
 });
 
 router.get('/status', function(req, res, next) {

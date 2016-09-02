@@ -1,13 +1,14 @@
 {
-    "name": "jobified",
-    "version": "0.0.1",
-    "dependencies": {
-        "body-parser": "*",
-        "cookie-parser": "*",
-        "express": "^4.14.0",
-        "mongoose": "^4.5.10",
-        "morgan": "*",
-        "node-sass-middleware": "^0.9.8",
-        "pug": "^2.0.0-beta5"
-    }
+  "name": "jobified",
+  "version": "0.0.1",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "body-parser": "*",
+    "cookie-parser": "*",
+    "express": "^4.14.0",
+    "mongoose": "^4.5.10",
+    "morgan": "*",
+    "node-sass-middleware": "^0.9.8",
+    "pug": "^2.0.0-beta5"
+  }
 }
