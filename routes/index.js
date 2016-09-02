@@ -1,3 +1,4 @@
+/* eslint new-cap: "off" */
 const express = require('express');
 const router = express.Router();
 
@@ -5,16 +6,15 @@ const Event = require('../models/Event.js');
 const Notification = require('../models/Notification.js');
 const Url = require('../models/Url.js');
 
-
 router.get('/data', function(req, res, next) {
     let urls = Url.find({}).exec();
     let events = Event.find({}).exec();
     let notis = Notification.find({}).exec();
 
     Promise.all([urls, events, notis]).then(ret => {
-        ret.map(function(d) {
+        for (let d of ret) {
             res.write(JSON.stringify(d) + '\n\n');
-        });
+        }
         res.end();
     });
 });
@@ -46,8 +46,14 @@ router.post('/add', function(req, res, next) {
         operation: operation,
         data: data
     };
-    Url.findOneAndUpdate(query, {url: url}, {upsert:true, new:true}, function(err, doc){
-        if (err) return res.send(500, { error: err });
+    Url.findOneAndUpdate(query, {
+        url: url
+    }, {
+        upsert: true,
+        new: true
+    }, function(err, doc) {
+        if (err)
+            return res.send(500, {error: err});
         res.send(doc);
     });
 });

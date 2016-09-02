@@ -1,0 +1,30 @@
+extends: 'google'
+env:
+  browser: true
+  commonjs: true
+  es6: true
+  node: true
+parserOptions:
+  sourceType: module
+rules:
+  indent:
+    - error
+    - 4
+  linebreak-style:
+    - error
+    - unix
+  quotes:
+    - error
+    - single
+  semi:
+    - error
+    - always
+  no-console:
+    - off
+  no-unused-vars:
+    - warn
+  require-jsdoc:
+    - off
+  max-len:
+    - warn
+    - 120

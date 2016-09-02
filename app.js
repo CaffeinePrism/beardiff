@@ -1,11 +1,10 @@
-"use strict";
+'use strict';
 
 const bluebird = require('bluebird');
 const express = require('express');
 const path = require('path');
 const logger = require('morgan');
 const sass = require('node-sass-middleware');
-const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const events = require('events');
 
@@ -27,19 +26,16 @@ const app = express();
 
 app.locals.emitter = new events.EventEmitter();
 
-
 // view engine setup
 app.set('port', process.env.PORT || 3000);
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+// app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: false
-}));
+app.use(bodyParser.urlencoded({extended: false}));
 // app.use(cookieParser());{css}
 app.use(sass({
     src: path.join(__dirname, 'public'),
@@ -82,6 +78,73 @@ app.use(function(err, req, res, next) {
     });
 });
 
+function checkUrlInit(url) {
+    return new Promise(function(resolve, reject) {
+        Event.findOne({
+            url: url
+        }).exec().then(resp => {
+            resolve(Boolean(resp));
+        });
+    });
+}
+
+function getLastScrapeTs(url) {
+    return new Promise(function(resolve, reject) {
+        Event.find({url: url, newScrape: true}).sort({ts: -1}).limit(1).then(function(resp) {
+            resolve(resp[0].ts_ms);
+        });
+    });
+}
+
+function getUrls() {
+    return Url.find({}).exec();
+}
+
+const scrapeLoop = bluebird.coroutine(function * scrapeLoop() {
+    let promises = [];
+    for (let urlObj of yield getUrls()) {
+        let params;
+        let url = urlObj.url;
+        let exists = yield checkUrlInit(url);
+        if (exists) {
+            let lastTs = yield getLastScrapeTs(url);
+            params = ['phantom.js', 'diff', lastTs, url];
+        } else {
+            params = ['phantom.js', 'init', url];
+        }
+        console.log('Scrape:', params, urlObj);
+        promises.push(new Promise(function(resolve, reject) {
+            let phantom = spawn('phantomjs', params);
+            phantom.stdout.on('data', data => {
+                console.log(`stdout [${url}]: ${data}`);
+                let result = JSON.parse(data);
+                if (result.newScrape) {
+                    new Notification({ts: result.ts, url: result.url}).save(function(err, obj) {
+                        if (err)
+                            console.error(err);
+                    });
+                }
+                new Event(result).save(function(err, obj) {
+                    if (err)
+                        console.error(err);
+                    else {
+                        console.log('saved', url);
+                    }
+                });
+            });
+
+            phantom.stderr.on('data', data => {
+                console.log(`stderr [${url}]: ${data}`);
+            });
+
+            phantom.on('exit', code => {
+                console.log(`[${url}]: child process exited with code ${code}`);
+                resolve();
+            });
+        }));
+    }
+    return Promise.all(promises);
+});
 
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function() {
@@ -94,84 +157,6 @@ db.once('open', function() {
             console.log('Scrape loop finished');
         });
     });
-});
-
-
-function checkUrlInit(url) {
-    return new Promise(function(resolve, reject) {
-        Event.findOne({
-            'url': url
-        }, function(err, resp) {
-            resolve(!!resp);
-        });
-    });
-}
-
-function getLastScrapeTs(url) {
-    return new Promise(function(resolve, reject) {
-        Event.find({
-            'url': url,
-            'newScrape': true
-        }).sort({
-            'ts': -1
-        }).limit(1).then(function(resp) {
-            resolve(resp[0].ts_ms);
-        });
-    });
-}
-
-function getUrls() {
-    return Url.find({}).exec();
-}
-
-const scrapeLoop = bluebird.coroutine(function* scrapeLoop() {
-    const comparator = (a, b) => b - a; // highest first
-    let promises = []
-    for (let urlObj of yield getUrls()) {
-        let params;
-        let url = urlObj.url;
-        let exists = yield checkUrlInit(url);
-        if (!exists) {
-            let op = 'init';
-            params = ['phantom.js', 'init', url];
-        } else {
-            let op = 'diff';
-            let lastTs = yield getLastScrapeTs(url);
-            params = ['phantom.js', 'diff', lastTs, url];
-        }
-        console.log("Scrape:", params, urlObj);
-        promises.push(new Promise(function(resolve, reject) {
-            let phantom = spawn('phantomjs', params);
-            phantom.stdout.on('data', (data) => {
-                console.log(`stdout [${url}]: ${data}`);
-                let result = JSON.parse(data);
-                if (result.newScrape) {
-                    new Notification({
-                        ts: result.ts,
-                        url: result.url
-                    }).save(function(err, obj) {
-                        if (err) console.error(err);
-                    });
-                }
-                new Event(result).save(function(err, obj) {
-                    if (err) console.error(err);
-                    else {
-                        console.log('saved', url);
-                    }
-                });
-            });
-
-            phantom.stderr.on('data', (data) => {
-                console.log(`stderr [${url}]: ${data}`);
-            });
-
-            phantom.on('exit', (code) => {
-                console.log(`[${url}]: child process exited with code ${code}`);
-                resolve();
-            });
-        }));
-    }
-    return Promise.all(promises);
 });
 
 module.exports = app;
