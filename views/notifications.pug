@@ -1,14 +1,27 @@
-extends layout
+//- extends layout
+//-
+//- block content
+//-     table.condensed
+//-         thead
+//-             tr
+//-                 td id
+//-                 td ts
+//-                 td url
+//-         each obj in data
+//-             tr
+//-                 td= obj._id
+//-                 td= obj.ts_ms
+//-                 td= obj.url
+doctype
+html(ng-app="beardiff")
+    head
+        meta(charset='utf8')
+        base(href='/')
+        link(rel='stylesheet', href='/stylesheets/style.css')
+    body
+        div(ng-view)
 
-block content
-    table.condensed
-        thead
-            tr
-                td id
-                td ts
-                td url
-        each obj in data
-            tr
-                td= obj._id
-                td= obj.ts_ms
-                td= obj.url
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js')
+        script(src='https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular-route.js')
+        script(src='js/app.js')
+        script(src='js/controllers.js')

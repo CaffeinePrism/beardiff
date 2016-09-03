@@ -45,7 +45,12 @@ app.use(sass({
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scrape_data', express.static(path.join(__dirname, 'scrape')));
 
+let partials = function(req, res) {
+    let name = req.params.name;
+    res.render('partials/' + name);
+};
 app.use('/', routes);
+app.get('/partials/:name', partials);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
