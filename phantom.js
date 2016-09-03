@@ -10,42 +10,6 @@ page.viewportSize = {
 };
 page.settings.webSecurityEnabled = false;
 
-// page.open(url1, function(){
-//     page.render('left.png');
-// 	console.log('g');
-//     var left = page.evaluate(pdiff.walk, walkOpt);
-//     page.open(url2, function(){
-// 		console.log('r');
-//         page.render('right.png');
-//         var right = page.evaluate(pdiff.walk, walkOpt);
-//         var ret = pdiff.diff(left, right, diffOpt);
-//         console.log(JSON.stringify(ret));
-//         var hlOpt = {
-//             diff: ret,
-//             left: {
-//                 rect: left.rect,
-//                 title: 'old version',
-//                 screenshot: 'file:///home/hungrystray/projects/jobified/left.png'
-//             },
-//             right: {
-//                 rect: right.rect,
-//                 title: 'new version',
-//                 screenshot: 'file:///home/hungrystray/projects/jobified/right.png'
-//             },
-//             page: webpage.create()
-//         };
-//         pdiff.highlight(hlOpt, function(err, page){
-// 			console.log('==========================here');
-//             if(err){
-//                 console.log('[ERROR] ' + err);
-//             } else {
-// 				console.log('done');
-//                 page.render('/home/hungrystray/projects/jobified/diff.png');
-//             }
-// 			phantom.exit();
-//         });
-//     });
-// });
 var currPath = fs.workingDirectory;
 
 function hostname(url) {
