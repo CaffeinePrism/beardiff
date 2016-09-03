@@ -1,5 +1,5 @@
 // Declare app level module which depends on filters, and services
-angular.module('beardiff', ['ngRoute']).config([
+angular.module('beardiff', ['ngRoute', 'ngAnimate']).config([
     '$routeProvider',
     '$locationProvider',
     function($routeProvider, $locationProvider) {
