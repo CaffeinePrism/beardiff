@@ -26,6 +26,67 @@ router.get('/status', function(req, res, next) {
         scrapeHist: req.app.locals.scrapeHist
     });
 });
+router.get('/api/urls', function(req, res, next) {
+    Url.find({}).exec().then(data => {
+        res.json({data: data});
+    }).catch(err => {
+        res.send(500, err);
+    });
+});
+
+router.get('/api/events', function(req, res, next) {
+    Event.find({}).exec().then(data => {
+        res.json({data: data});
+    }).catch(err => {
+        res.send(500, err);
+    });
+});
+
+router.get('/api/notifications', function(req, res, next) {
+    Notification.find({}).exec().then(data => {
+        res.json({data: data});
+    }).catch(err => {
+        res.send(500, err);
+    });
+});
+
+router.get('/notifications', function(req, res, next) {
+    Notification.find({}).exec().then(data => {
+        res.render('notifications', {data: data});
+    }).catch(err => {
+        res.send(500, err);
+    });
+});
+
+router.delete('/url/:id', function(req, res, next) {
+    Url.remove({
+        _id: req.params.id
+    }, function(err) {
+        if (err)
+            return res.send(500, {error: err});
+        res.send('ok');
+    });
+});
+
+router.delete('/event/:id', function(req, res, next) {
+    Event.remove({
+        _id: req.params.id
+    }, function(err) {
+        if (err)
+            return res.send(500, {error: err});
+        res.send('ok');
+    });
+});
+
+router.delete('/notification/:id', function(req, res, next) {
+    Notification.remove({
+        _id: req.params.id
+    }, function(err) {
+        if (err)
+            return res.send(500, {error: err});
+        res.send('ok');
+    });
+});
 
 /* GET home page. */
 router.get('/add', function(req, res, next) {

@@ -1,0 +1,14 @@
+extends layout
+
+block content
+    table.condensed
+        thead
+            tr
+                td id
+                td ts
+                td url
+        each obj in data
+            tr
+                td= obj._id
+                td= obj.ts_ms
+                td= obj.url

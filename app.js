@@ -152,10 +152,10 @@ db.once('open', function() {
     app.listen(app.get('port'), () => {
         console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 
-        console.log('Starting scrape loop');
-        scrapeLoop().then(function() {
-            console.log('Scrape loop finished');
-        });
+        // console.log('Starting scrape loop');
+        // scrapeLoop().then(function() {
+        //     console.log('Scrape loop finished');
+        // });
     });
 });
 
