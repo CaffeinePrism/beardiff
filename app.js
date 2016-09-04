@@ -14,13 +14,16 @@ mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://localhost/beardiff');
 const db = mongoose.connection;
 
+const Diff = require('./models/Diff.js');
 const Event = require('./models/Event.js');
 const Notification = require('./models/Notification.js');
+const Scrape = require('./models/Scrape.js');
 const Url = require('./models/Url.js');
 
 const spawn = require('child_process').spawn;
 
 const routes = require('./routes/index');
+const api = require('./routes/api');
 
 const app = express();
 
@@ -34,7 +37,7 @@ app.set('view engine', 'pug');
 // uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({extended: false}));
 // app.use(cookieParser());{css}
 app.use(sass({
@@ -50,6 +53,7 @@ let partials = function(req, res) {
     res.render('partials/' + name);
 };
 app.use('/', routes);
+app.use('/api', api);
 app.get('/partials/:name', partials);
 
 // catch 404 and forward to error handler
@@ -111,10 +115,13 @@ const scrapeLoop = bluebird.coroutine(function * scrapeLoop() {
         let params;
         let url = urlObj.url;
         let exists = yield checkUrlInit(url);
+        let op;
         if (exists) {
+            op = 'diff';
             let lastTs = yield getLastScrapeTs(url);
             params = ['phantom.js', 'diff', lastTs, url];
         } else {
+            op = 'init';
             params = ['phantom.js', 'init', url];
         }
         console.log('Scrape:', params, urlObj);
@@ -123,7 +130,7 @@ const scrapeLoop = bluebird.coroutine(function * scrapeLoop() {
             phantom.stdout.on('data', data => {
                 console.log(`stdout [${url}]: ${data}`);
                 let result = JSON.parse(data);
-                if (result.newScrape) {
+                if (result.newScrape && op !== 'init') {
                     new Notification({ts: result.ts, url: result.url}).save(function(err, obj) {
                         if (err)
                             console.error(err);
@@ -157,10 +164,14 @@ db.once('open', function() {
     app.listen(app.get('port'), () => {
         console.log('Express server listening on port %d in %s mode', app.get('port'), app.get('env'));
 
-        // console.log('Starting scrape loop');
-        // scrapeLoop().then(function() {
-        //     console.log('Scrape loop finished');
-        // });
+        // var scrape = function scrape() {
+        //     console.log('Starting scrape loop');
+        //     scrapeLoop().then(function() {
+        //         console.log('Scrape loop finished');
+        //         setTimeout(scrape, 6000);
+        //     });
+        // };
+        // scrape();
     });
 });
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const eventSchema = new mongoose.Schema({
+const scrapeSchema = new mongoose.Schema({
     ts: {
         type: Date,
         required: true
@@ -9,20 +9,16 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    op: {
+    tree: {
         type: String,
         required: true
     },
-    newScrape: {
-        type: Boolean,
+    ss: {
+        type: Buffer,
         required: true
     }
 }, {timestamps: false});
 
-eventSchema.virtual('ts_ms').get(function() {
-    return this.ts.getTime();
-});
+const Scrape = mongoose.model('Scrape', scrapeSchema);
 
-const Event = mongoose.model('Event', eventSchema);
-
-module.exports = Event;
+module.exports = Scrape;

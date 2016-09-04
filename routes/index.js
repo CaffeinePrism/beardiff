@@ -4,14 +4,16 @@ const router = express.Router();
 
 const Event = require('../models/Event.js');
 const Notification = require('../models/Notification.js');
+const Scrape = require('../models/Scrape.js');
 const Url = require('../models/Url.js');
 
 router.get('/data', function(req, res, next) {
     let urls = Url.find({}).exec();
     let events = Event.find({}).exec();
     let notis = Notification.find({}).exec();
+    let scrapes = Scrape.find({}, '_id').exec();
 
-    Promise.all([urls, events, notis]).then(ret => {
+    Promise.all([urls, events, notis, scrapes]).then(ret => {
         for (let d of ret) {
             res.write(JSON.stringify(d) + '\n\n');
         }
@@ -24,29 +26,6 @@ router.get('/status', function(req, res, next) {
         title: 'Express',
         data: req.app.locals.data,
         scrapeHist: req.app.locals.scrapeHist
-    });
-});
-router.get('/api/urls', function(req, res, next) {
-    Url.find({}).exec().then(data => {
-        res.json({data: data});
-    }).catch(err => {
-        res.send(500, err);
-    });
-});
-
-router.get('/api/events', function(req, res, next) {
-    Event.find({}).exec().then(data => {
-        res.json({data: data});
-    }).catch(err => {
-        res.send(500, err);
-    });
-});
-
-router.get('/api/notifications', function(req, res, next) {
-    Notification.find({}).exec().then(data => {
-        res.json({data: data});
-    }).catch(err => {
-        res.send(500, err);
     });
 });
 

@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 
 const notiSchema = new mongoose.Schema({
     ts: {
-        type: Date
+        type: Date,
+        required: true
     },
     url: {
-        type: String
+        type: String,
+        required: true
     }
 }, {timestamps: false});
 
