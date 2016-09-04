@@ -94,6 +94,15 @@ router.post('/diffs', function(req, res, next) {
     });
 });
 
+router.get('/diffs/partial/:tsr/img', function(req, res, next) {
+    Diff.findOne({tsRight: new Date(parseInt(req.params.tsr, 10))}).exec().then(data => {
+        res.set('Content-Type', 'image/png');
+        res.send(data.diff);
+    }).catch(err => {
+        return res.status(500).send(err);
+    });
+});
+
 router.get('/diffs/:tsl/:tsr/img', function(req, res, next) {
     Diff.findOne({tsLeft: req.params.tsl, tsRight: req.params.tsr}).exec().then(data => {
         res.set('Content-Type', 'image/png');

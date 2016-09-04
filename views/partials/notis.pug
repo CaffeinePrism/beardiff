@@ -2,12 +2,15 @@ p There are {{notifications.length}} notifications
 table.condensed
     thead
         td
+        td
         td id
         td ts
         td url
     tr(class="animate" ng-repeat='noti in notifications')
         td
             a(ng-click="remove($index)") x
+        td
+            a(ng-click="popupDiff($index)") popup
         td {{noti._id}}
         td {{noti.ts | date: 'medium'}}
         td {{noti.url}}
